@@ -20,17 +20,21 @@ class olc6502 {
             U = (1 << 5), // unused
             V = (1 << 6), // overflow
             N = (1 << 7), // negative
-        }
+        };
         uint8_t a = 0x00; // accumulator
         uint8_t x = 0x00; // x register
         uint8_t y = 0x00; // y register
         uint8_t stkp = 0x00; // stack pointer
-        uint8_t pc = 0x0000; // program counter
+        uint16_t pc = 0x0000; // program counter
         uint8_t status = 0x00; // status register
 
         void ConnectBus(Bus *n) {
             bus = n;
         }
+
+        bool complete();
+
+        std::map<uint16_t, std::string> disassemble(uint16_t nStart, uint16_t nStop);
         
         // Addressing modes
         uint8_t IMP();  uint8_t IMM();
@@ -66,6 +70,7 @@ class olc6502 {
 
         uint8_t fetch();
         uint8_t fetched = 0x00;
+        uint16_t temp = 0x0000;
         uint16_t addr_abs = 0x0000; 
         uint16_t addr_rel = 0x00;
         uint8_t opcode = 0x00;

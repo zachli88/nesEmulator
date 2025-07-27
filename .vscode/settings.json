@@ -42,6 +42,11 @@
     "algorithm": "cpp",
     "__node_handle": "cpp",
     "deque": "cpp",
-    "vector": "cpp"
+    "vector": "cpp",
+    "__hash_table": "cpp",
+    "__tree": "cpp",
+    "map": "cpp",
+    "unordered_map": "cpp",
+    "memory": "cpp"
   }
 }

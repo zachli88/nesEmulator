@@ -1,4 +1,4 @@
-#include "Bus.h"
+#include "../header/Bus.h"
 
 Bus::Bus() {
     for (auto &i: ram) {
