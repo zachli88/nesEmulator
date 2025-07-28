@@ -47,6 +47,16 @@
     "__tree": "cpp",
     "map": "cpp",
     "unordered_map": "cpp",
-    "memory": "cpp"
+    "memory": "cpp",
+    "__split_buffer": "cpp",
+    "charconv": "cpp",
+    "complex": "cpp",
+    "execution": "cpp",
+    "forward_list": "cpp",
+    "fstream": "cpp",
+    "iomanip": "cpp",
+    "list": "cpp",
+    "sstream": "cpp",
+    "variant": "cpp"
   }
 }
