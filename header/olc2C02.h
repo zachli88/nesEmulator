@@ -26,6 +26,9 @@ public:
 	void reset();
 	bool nmi = false;
 
+	uint8_t* pOAM = (uint8_t*)OAM;
+	uint8_t oam_addr = 0x00;
+
 private:
 	uint8_t tblName[2][1024];
 	uint8_t tblPattern[2][4096];
@@ -34,6 +37,10 @@ private:
 	olc::Sprite* sprScreen;
 	olc::Sprite* sprNameTable[2];
 	olc::Sprite* sprPatternTable[2];
+	uint8_t sprite_shifter_pattern_lo[8];
+	uint8_t sprite_shifter_pattern_hi[8];
+	bool bSpriteZeroHitPossible = false;
+	bool bSpriteZeroBeingRendered = false;
 
 	union {
 		struct {
@@ -84,6 +91,16 @@ private:
 		};
 		uint16_t reg = 0x0000;
 	};
+
+	struct sObjectAttributeEntry {
+		uint8_t y;
+		uint8_t id;
+		uint8_t attribute;
+		uint8_t x;
+	} OAM[64];
+
+	sObjectAttributeEntry spriteScanline[8];
+	uint8_t sprite_count;
 
 	loopy_register vram_addr;
 	loopy_register tram_addr;
