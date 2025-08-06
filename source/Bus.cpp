@@ -7,12 +7,19 @@ Bus::Bus() {
 Bus::~Bus() {
 }
 
+void Bus::SetSampleFrequency(uint32_t sample_rate) {
+	dAudioTimePerSystemSample = 1.0 / (double)sample_rate;
+	dAudioTimePerNESClock = 1.0 / 5369318.0;
+}
+
 void Bus::cpuWrite(uint16_t addr, uint8_t data) {	
 	if (cart->cpuWrite(addr, data)) {
 	} else if (addr >= 0x0000 && addr <= 0x1FFF) {
 		cpuRam[addr & 0x07FF] = data;
 	} else if (addr >= 0x2000 && addr <= 0x3FFF) {
 		ppu.cpuWrite(addr & 0x0007, data);
+	} else if ((addr >= 0x4000 && addr <= 0x4013) || addr == 0x4015 || addr == 0x4017) {
+		apu.cpuWrite(addr, data);
 	} else if (addr == 0x4014) {
 		dma_page = data;
 		dma_addr = 0x00;
@@ -48,8 +55,9 @@ void Bus::reset() {
 	nSystemClockCounter = 0;
 }
 
-void Bus::clock() {
+bool Bus::clock() {
 	ppu.clock();
+	apu.clock();
 	if (nSystemClockCounter % 3 == 0) {
 		if (dma_transfer) {
 			if (dma_dummy) {
@@ -77,9 +85,18 @@ void Bus::clock() {
 		}
 
 	}
+
+	bool dAudioSampleReady = false;
+	dAudioTime += dAudioTimePerNESClock;
+	if (dAudioTime >= dAudioTimePerSystemSample) {
+		dAudioTime -= dAudioTimePerSystemSample;
+		dAudioSample = apu.GetOutputSample();
+		dAudioSample = true;
+	}
 	if (ppu.nmi) {
 		ppu.nmi = false;
 		cpu.nmi();
 	}
 	nSystemClockCounter++;
+	return dAudioSampleReady;
 }
