@@ -36,6 +36,8 @@ uint8_t Bus::cpuRead(uint16_t addr, bool bReadOnly) {
 		data = cpuRam[addr & 0x07FF];
 	} else if (addr >= 0x2000 && addr <= 0x3FFF) {
 		data = ppu.cpuRead(addr & 0x0007, bReadOnly);
+	} else if (addr == 0x4015) {
+		data = apu.cpuRead(addr);
 	} else if (addr >= 0x4016 && addr <= 0x4017) {
 		data = (controller_state[addr & 0x0001] & 0x80) > 0;
 		controller_state[addr & 0x0001] <<= 1;
@@ -53,11 +55,18 @@ void Bus::reset() {
 	cpu.reset();
 	ppu.reset();
 	nSystemClockCounter = 0;
+	dma_page = 0x00;
+	dma_addr = 0x00;
+	dma_data = 0x00;
+	dma_dummy = true;
+	dma_transfer = false;
 }
 
 bool Bus::clock() {
+
 	ppu.clock();
 	apu.clock();
+
 	if (nSystemClockCounter % 3 == 0) {
 		if (dma_transfer) {
 			if (dma_dummy) {
@@ -86,17 +95,22 @@ bool Bus::clock() {
 
 	}
 
-	bool dAudioSampleReady = false;
+	bool bAudioSampleReady = false;
 	dAudioTime += dAudioTimePerNESClock;
 	if (dAudioTime >= dAudioTimePerSystemSample) {
 		dAudioTime -= dAudioTimePerSystemSample;
 		dAudioSample = apu.GetOutputSample();
-		dAudioSample = true;
+		bAudioSampleReady = true;
 	}
+
 	if (ppu.nmi) {
 		ppu.nmi = false;
 		cpu.nmi();
 	}
+	if (cart->GetMapper()->irqState()) {
+		cart->GetMapper()->irqClear();
+		cpu.irq();		
+	}
 	nSystemClockCounter++;
-	return dAudioSampleReady;
+	return bAudioSampleReady;
 }

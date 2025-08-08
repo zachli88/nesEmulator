@@ -42,4 +42,5 @@ class Bus {
 		double dAudioTime = 0.0;
 		double dAudioTimePerSystemSample = 0.0f;
 		double dAudioTimePerNESClock = 0.0;
+		double dAudioGlobalTime = 0.0;
 };
