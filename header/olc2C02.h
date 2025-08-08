@@ -27,9 +27,10 @@ public:
 	bool nmi = false;
 
 	uint8_t* pOAM = (uint8_t*)OAM;
-	uint8_t oam_addr = 0x00;
+	bool scanline_trigger = false;
 
 private:
+	uint8_t oam_addr = 0x00;
 	uint8_t tblName[2][1024];
 	uint8_t tblPattern[2][4096];
 	uint8_t tblPalette[32];
@@ -42,7 +43,7 @@ private:
 	bool bSpriteZeroHitPossible = false;
 	bool bSpriteZeroBeingRendered = false;
 
-	union {
+	union PPUSTATUS {
 		struct {
 			uint8_t unused : 5;
 			uint8_t sprite_overflow : 1;
@@ -52,7 +53,7 @@ private:
 		uint8_t reg;
 	} status;
 
-	union {
+	union PPUMASK {
 		struct {
 			uint8_t grayscale : 1;
 			uint8_t render_background_left : 1;
@@ -109,6 +110,7 @@ private:
 	uint8_t ppu_data_buffer = 0x00;
 	int16_t scanline = 0;
 	int16_t cycle = 0;
+	bool odd_frame = false;
 	uint8_t bg_next_tile_id = 0x00;
 	uint8_t bg_next_tile_attrib = 0x00;
 	uint8_t bg_next_tile_lsb = 0x00;

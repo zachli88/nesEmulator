@@ -210,12 +210,12 @@ uint8_t olc2C02::ppuRead(uint16_t addr, bool rdonly) {
 		data = tblPattern[(addr & 0x1000) >> 12][addr & 0x0FFF];
 	} else if (addr >= 0x2000 && addr <= 0x3EFF) {
 		addr &= 0x0FFF;
-		if (cart->mirror == Cartridge::MIRROR::VERTICAL) {
+		if (cart->Mirror() == Cartridge::MIRROR::VERTICAL) {
 			if (addr >= 0x0000 && addr <= 0x03FF) data = tblName[0][addr & 0x03FF];
 			if (addr >= 0x0400 && addr <= 0x07FF) data = tblName[1][addr & 0x03FF];
 			if (addr >= 0x0800 && addr <= 0x0BFF) data = tblName[0][addr & 0x03FF];
 			if (addr >= 0x0C00 && addr <= 0x0FFF) data = tblName[1][addr & 0x03FF];
-		} else if (cart->mirror == Cartridge::MIRROR::HORIZONTAL) {
+		} else if (cart->Mirror() == Cartridge::MIRROR::HORIZONTAL) {
 			if (addr >= 0x0000 && addr <= 0x03FF) data = tblName[0][addr & 0x03FF];
 			if (addr >= 0x0400 && addr <= 0x07FF) data = tblName[0][addr & 0x03FF];
 			if (addr >= 0x0800 && addr <= 0x0BFF) data = tblName[1][addr & 0x03FF];
@@ -239,12 +239,12 @@ void olc2C02::ppuWrite(uint16_t addr, uint8_t data) {
 		tblPattern[(addr & 0x1000) >> 12][addr & 0x0FFF] = data;
 	} else if (addr >= 0x2000 && addr <= 0x3EFF) {
 		addr &= 0x0FFF;
-		if (cart->mirror == Cartridge::MIRROR::VERTICAL) {
+		if (cart->Mirror() == Cartridge::MIRROR::VERTICAL) {
 			if (addr >= 0x0000 && addr <= 0x03FF) tblName[0][addr & 0x03FF] = data;
 			if (addr >= 0x0400 && addr <= 0x07FF) tblName[1][addr & 0x03FF] = data;
 			if (addr >= 0x0800 && addr <= 0x0BFF) tblName[0][addr & 0x03FF] = data;
 			if (addr >= 0x0C00 && addr <= 0x0FFF) tblName[1][addr & 0x03FF] = data;
-		} else if (cart->mirror == Cartridge::MIRROR::HORIZONTAL) {
+		} else if (cart->Mirror() == Cartridge::MIRROR::HORIZONTAL) {
 			if (addr >= 0x0000 && addr <= 0x03FF) tblName[0][addr & 0x03FF] = data;
 			if (addr >= 0x0400 && addr <= 0x07FF) tblName[0][addr & 0x03FF] = data;
 			if (addr >= 0x0800 && addr <= 0x0BFF) tblName[1][addr & 0x03FF] = data;
@@ -359,7 +359,7 @@ void olc2C02::clock() {
 	};
 
 	if (scanline >= -1 && scanline < 240) {		
-		if (scanline == 0 && cycle == 0) {
+		if (scanline == 0 && cycle == 0 && odd_frame && (mask.render_background || mask.render_sprites)) {
 			cycle = 1;
 		}
 		if (scanline == -1 && cycle == 1) {
@@ -438,7 +438,7 @@ void olc2C02::clock() {
 				}
 				nOAMEntry++;
 			}
-			status.sprite_overflow = (sprite_count > 8);
+			status.sprite_overflow = (sprite_count >= 8);
 		}
 
 		if (cycle == 340) {
@@ -570,7 +570,7 @@ void olc2C02::clock() {
 
 		if (bSpriteZeroHitPossible && bSpriteZeroBeingRendered) {
 			if (mask.render_background & mask.render_sprites) {
-				if (~(mask.render_background_left | mask.render_sprites_left)) {
+				if (!(mask.render_background_left | mask.render_sprites_left)) {
 					if (cycle >= 9 && cycle < 258) {
 						status.sprite_zero_hit = 1;
 					}
@@ -587,12 +587,18 @@ void olc2C02::clock() {
 	sprScreen->SetPixel(cycle - 1, scanline, GetColourFromPaletteRam(palette, pixel));
 
 	cycle++;
+
+	if ((mask.render_background || mask.render_sprites) && (cycle == 260 && scanline < 240)) {
+		cart->GetMapper()->scanline();
+	}
+
 	if (cycle >= 341) {
 		cycle = 0;
 		scanline++;
 		if (scanline >= 261) {
 			scanline = -1;
 			frame_complete = true;
+			odd_frame = !odd_frame;
 		}
 	}
 }
