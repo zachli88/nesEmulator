@@ -210,12 +210,12 @@ uint8_t olc2C02::ppuRead(uint16_t addr, bool rdonly) {
 		data = tblPattern[(addr & 0x1000) >> 12][addr & 0x0FFF];
 	} else if (addr >= 0x2000 && addr <= 0x3EFF) {
 		addr &= 0x0FFF;
-		if (cart->Mirror() == Cartridge::MIRROR::VERTICAL) {
+		if (cart->Mirror() == MIRROR::VERTICAL) {
 			if (addr >= 0x0000 && addr <= 0x03FF) data = tblName[0][addr & 0x03FF];
 			if (addr >= 0x0400 && addr <= 0x07FF) data = tblName[1][addr & 0x03FF];
 			if (addr >= 0x0800 && addr <= 0x0BFF) data = tblName[0][addr & 0x03FF];
 			if (addr >= 0x0C00 && addr <= 0x0FFF) data = tblName[1][addr & 0x03FF];
-		} else if (cart->Mirror() == Cartridge::MIRROR::HORIZONTAL) {
+		} else if (cart->Mirror() == MIRROR::HORIZONTAL) {
 			if (addr >= 0x0000 && addr <= 0x03FF) data = tblName[0][addr & 0x03FF];
 			if (addr >= 0x0400 && addr <= 0x07FF) data = tblName[0][addr & 0x03FF];
 			if (addr >= 0x0800 && addr <= 0x0BFF) data = tblName[1][addr & 0x03FF];
@@ -239,12 +239,12 @@ void olc2C02::ppuWrite(uint16_t addr, uint8_t data) {
 		tblPattern[(addr & 0x1000) >> 12][addr & 0x0FFF] = data;
 	} else if (addr >= 0x2000 && addr <= 0x3EFF) {
 		addr &= 0x0FFF;
-		if (cart->Mirror() == Cartridge::MIRROR::VERTICAL) {
+		if (cart->Mirror() == MIRROR::VERTICAL) {
 			if (addr >= 0x0000 && addr <= 0x03FF) tblName[0][addr & 0x03FF] = data;
 			if (addr >= 0x0400 && addr <= 0x07FF) tblName[1][addr & 0x03FF] = data;
 			if (addr >= 0x0800 && addr <= 0x0BFF) tblName[0][addr & 0x03FF] = data;
 			if (addr >= 0x0C00 && addr <= 0x0FFF) tblName[1][addr & 0x03FF] = data;
-		} else if (cart->Mirror() == Cartridge::MIRROR::HORIZONTAL) {
+		} else if (cart->Mirror() == MIRROR::HORIZONTAL) {
 			if (addr >= 0x0000 && addr <= 0x03FF) tblName[0][addr & 0x03FF] = data;
 			if (addr >= 0x0400 && addr <= 0x07FF) tblName[0][addr & 0x03FF] = data;
 			if (addr >= 0x0800 && addr <= 0x0BFF) tblName[1][addr & 0x03FF] = data;
@@ -445,7 +445,7 @@ void olc2C02::clock() {
 			for (uint8_t i = 0; i < sprite_count; ++i) {
 				uint8_t sprite_pattern_bits_lo, sprite_pattern_bits_hi;
 				uint16_t sprite_pattern_addr_lo, sprite_pattern_addr_hi;
-				if (control.sprite_size) {
+				if (!control.sprite_size) {
 					if ((spriteScanline[i].attribute & 0x80) == 0) {
 						sprite_pattern_addr_lo = (control.pattern_sprite << 12) | 
 						(spriteScanline[i].id << 4) | (scanline - spriteScanline[i].y);

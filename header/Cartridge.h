@@ -20,6 +20,7 @@ public:
 	bool ppuWrite(uint16_t addr, uint8_t data);
 	void reset();
 	MIRROR Mirror();
+	std::shared_ptr<Mapper> GetMapper();
 
 private:
 	bool bImageValid = false;

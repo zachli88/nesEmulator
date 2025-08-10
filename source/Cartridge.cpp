@@ -24,7 +24,7 @@ Cartridge::Cartridge(const std::string& sFileName) {
 			ifs.seekg(512, std::ios_base::cur);
 
 		nMapperID = ((header.mapper2 >> 4) << 4) | (header.mapper1 >> 4);
-		mirror = (header.mapper1 & 0x01) ? VERTICAL : HORIZONTAL;
+		hw_mirror = (header.mapper1 & 0x01) ? VERTICAL : HORIZONTAL;
 		uint8_t nFileType = 1;
 		if (nFileType == 1) {
 			nPRGBanks = header.prg_rom_chunks;
@@ -53,11 +53,11 @@ Cartridge::Cartridge(const std::string& sFileName) {
 
 		switch (nMapperID) {
 			case   0: pMapper = std::make_shared<Mapper_000>(nPRGBanks, nCHRBanks); break;
-			case   1: pMapper = std::make_shared<Mapper_001>(nPRGBanks, nCHRBanks); break;
-			case   2: pMapper = std::make_shared<Mapper_002>(nPRGBanks, nCHRBanks); break;
-			case   3: pMapper = std::make_shared<Mapper_003>(nPRGBanks, nCHRBanks); break;
-			case   4: pMapper = std::make_shared<Mapper_004>(nPRGBanks, nCHRBanks); break;
-			case  66: pMapper = std::make_shared<Mapper_066>(nPRGBanks, nCHRBanks); break;
+			// case   1: pMapper = std::make_shared<Mapper_001>(nPRGBanks, nCHRBanks); break;
+			// case   2: pMapper = std::make_shared<Mapper_002>(nPRGBanks, nCHRBanks); break;
+			// case   3: pMapper = std::make_shared<Mapper_003>(nPRGBanks, nCHRBanks); break;
+			// case   4: pMapper = std::make_shared<Mapper_004>(nPRGBanks, nCHRBanks); break;
+			// case  66: pMapper = std::make_shared<Mapper_066>(nPRGBanks, nCHRBanks); break;
 		}
 
 		bImageValid = true;
